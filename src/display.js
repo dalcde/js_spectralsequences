@@ -104,6 +104,7 @@ class Display extends EventEmitter {
         this.container_DOM = this.container.node();
         // Clear everything in container
         this.container.selectAll().remove();
+        this.container.on("click", this._handleClick.bind(this));
 
         this.xScaleInit = d3.scaleLinear();
         this.yScaleInit = d3.scaleLinear();
@@ -128,8 +129,6 @@ class Display extends EventEmitter {
             .style("top","0px")
             .style("font-family","Arial")
             .style("font-size","15px");
-
-        this.tooltip = new Tooltip(this);
 
         // TODO: improve window resize handling. Currently the way that the domain changes is suboptimal.
         // I think the best would be to maintain the x and y range by scaling.
@@ -873,6 +872,15 @@ class Display extends EventEmitter {
         }
     }
 
+    _handleClick() {
+        let shape = this.stage.getIntersection(this.stage.getPointerPosition());
+        if (shape && shape.sseq_class) {
+            this.emit("click", shape, shape.sseq_class);
+        } else {
+            this.emit("click");
+        }
+    }
+
     _handleMouseout() {
         this.mouseover_class = null;
         this.emit("mouseout");
@@ -1133,6 +1141,7 @@ function displaySseq(ss, name) {
     } else {
         window.sseqDisplay[name] = new Display(ss, name);
     }
+    return window.sseqDisplay[name];
 }
 
 exports.Display = Display;
