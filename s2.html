@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.css" integrity="sha384-+MsSfd29vjUzcyqYURxcmpWGtqoSHBy+QdEJNLEslXQftxojQv0k6BGDqUNp9GtA" crossorigin="anonymous">
+<style>
+html, body {
+  height: 100%;
+}
+#main {
+  height: 100%;
+  min-height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+#sidebar {
+  height: 100%;
+  width: 240px;
+  float: right;
+}
+#sidebar #title {
+  display: none;
+}
+#sidebar ul {
+  list-style-type: none;
+}
+hr { height:2px; visibility:hidden; margin-bottom:-1px; }
+</style>
+</head>
+<body>
+<script src="bundle.js" type="text/javascript"></script>
+<script>
+
+function ensureMath(str){
+    if(str.startsWith("\\(") || str.startsWith("$")){
+        return str;
+    }
+    if(!str){
+        return "";
+    }
+    return "$" + str + "$";
+}
+
+var clicked = false;
+function onMouseOut() {
+  if (clicked) return;
+  document.getElementById("title").style.display = "none";
+  document.getElementById("extra").innerHTML = "";
+}
+function onMouseOver(shape, c) {
+  if (clicked) return;
+
+  document.getElementById("title").style.display = "inline";
+  // Don't use renderLaTeX
+  document.getElementById("title").innerHTML = Interface.renderLaTeX(`\\(${c.name}\\)`) + `at (${c.x}, ${c.y})`;
+
+  extra_info = c.extra_info.split("\n")
+    .filter(x => x.trim() !== "")
+    .map(x => ensureMath(x))
+    .map(x => "<li class='list-group-item'>" + Interface.renderLaTeX(x) + "</li>");
+
+  document.getElementById("extra").innerHTML = extra_info.join("\n");
+
+}
+Sseq.loadFromServer("json/ASS-S_2.json").catch((error) => console.log(error)).then((dss) => {
+    sseq = Sseq.getSseqFromDisplay(dss);
+    dss.display("#main");
+    dss._display.on("mouseover", onMouseOver);
+    dss._display.on("click", function(shape, c) {
+      if (c) {
+        clicked = false;
+        onMouseOver(shape, c);
+        clicked = true;
+      }
+      else {
+        clicked = false;
+        onMouseOut();
+      }
+    });
+    dss._display.on("mouseout", onMouseOut);
+  }).catch(e => console.log(e));
+</script>
+
+<div id="sidebar" class="card">
+  <div class="card-header" id="title">
+  </div>
+  <ul id="extra" class="list-group list-group-flush">
+  </ul> 
+  <div class="card-body" style="height: 100%">
+  </div>
+</div>
+<div id="main"></div>
+</body>
+</html> 
