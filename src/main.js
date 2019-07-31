@@ -29,9 +29,10 @@ window.Sseq = Sseqjs.Sseq;
 window.SseqClass = Sseqjs.SseqClass;
 window.Node = Sseqjs.Node;
 window.Edge = Sseqjs.Edge;
-window.Differential = Sseqjs.Differential;
-window.Structline = Sseqjs.Structline;
-window.Extension = Sseqjs.Extension;
+window.Edges = require("./Edges.js");
+window.Differential = Edges.Differential;
+window.Structline = Edges.Structline;
+window.Extension = Edges.Extension;
 
 
 window.tools = require("./ass_tools.js");
